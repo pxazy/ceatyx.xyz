@@ -1,12 +1,306 @@
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 
-]]--
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
-local v0="https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/";local v1=loadstring(game:HttpGet(v0   .. "Library.lua" ))();local v2=loadstring(game:HttpGet(v0   .. "addons/ThemeManager.lua" ))();local v3=loadstring(game:HttpGet(v0   .. "addons/SaveManager.lua" ))();local v4=v1:CreateWindow({Title="cetyx.xyz",Center=true,AutoShow=true,TabPadding=8,MenuFadeTime=0.2});local v5={Aimbot=v4:AddTab("Aimbot"),Visual=v4:AddTab("Visual"),Misc=v4:AddTab("Misc"),Config=v4:AddTab("Config")};local v6=v5.Aimbot:AddLeftGroupbox("Main");v6:AddToggle("AimEnabled",{Text="Enabled",Default=false});v6:AddToggle("AutoShoot",{Text="Auto Shoot",Default=false});v6:AddToggle("WallCheck",{Text="Wall Check",Default=false});v6:AddSlider("AimSmooth",{Text="Smoothness",Default=1071 -(842 + 228) ,Min=1,Max=2004 -(508 + 1446) ,Rounding=1 + 0 });v6:AddDropdown("AimPart",{Values={"Head","UpperTorso"},Default=1 + 0 ,Multi=false,Text="Target Part"});local v7=v5.Aimbot:AddLeftGroupbox("Filters");v7:AddToggle("AimIgnoreGuards",{Text="Ignore Guards",Default=false});v7:AddToggle("AimIgnoreInmates",{Text="Ignore Inmates",Default=false});v7:AddToggle("AimIgnoreCriminals",{Text="Ignore Criminals",Default=false});v7:AddToggle("AimIgnoreNeutral",{Text="Ignore Neutral",Default=false});v7:AddToggle("AimIgnoreFriends",{Text="Ignore Friends",Default=false});local v8=v5.Aimbot:AddRightGroupbox("FOV Settings");v8:AddToggle("ShowFov",{Text="Show FOV",Default=false}):AddColorPicker("FovColor",{Default=Color3.fromRGB(335 -80 ,1442 -(1069 + 118) ,578 -323 )});v8:AddToggle("FovRainbow",{Text="Rainbow FOV",Default=false});v8:AddSlider("FovRadius",{Text="FOV Size",Default=218 -118 ,Min=2 + 8 ,Max=1421 -621 ,Rounding=0 + 0 });local v9=v5.Visual:AddLeftGroupbox("ESP");v9:AddToggle("EspToggle",{Text="2D Box",Default=false}):AddColorPicker("EspColor",{Default=Color3.fromRGB(1046 -(368 + 423) ,0 -0 ,18 -(10 + 8) )});v9:AddToggle("BoxRainbow",{Text="Box Rainbow",Default=false});v9:AddSlider("BoxThickness",{Text="Box Thickness",Default=1,Min=1,Max=19 -14 ,Rounding=442 -(416 + 26) });v9:AddToggle("EspName",{Text="Names",Default=false}):AddColorPicker("NameColor",{Default=Color3.fromRGB(814 -559 ,110 + 145 ,450 -195 )});v9:AddToggle("NameRainbow",{Text="Name Rainbow",Default=false});v9:AddToggle("EspHealth",{Text="Health",Default=false}):AddColorPicker("HealthColor",{Default=Color3.fromRGB(0,693 -(145 + 293) ,430 -(44 + 386) )});v9:AddToggle("HealthRainbow",{Text="Health Rainbow",Default=false});v9:AddToggle("ChamsToggle",{Text="Chams",Default=false}):AddColorPicker("ChamsColor",{Default=Color3.fromRGB(255,255,1741 -(998 + 488) )});v9:AddToggle("ChamsRainbow",{Text="Chams Rainbow",Default=false});v9:AddToggle("SelfChams",{Text="Self Chams",Default=false}):AddColorPicker("SelfChamsColor",{Default=Color3.fromRGB(0 + 0 ,209 + 46 ,255)});v9:AddToggle("SelfChamsRainbow",{Text="Self Chams Rainbow",Default=false});v9:AddToggle("FriendEsp",{Text="Friend ESP",Default=false});v9:AddToggle("EspRoles",{Text="Show Roles",Default=false});local v10=v5.Misc:AddLeftGroupbox("Main");v10:AddToggle("HitLog",{Text="Hit Log",Default=false});v10:AddToggle("HitSound",{Text="Hit Sound",Default=false});v10:AddSlider("HitSoundVolume",{Text="Sound Volume",Default=773 -(201 + 571) ,Min=1138 -(116 + 1022) ,Max=20 -15 ,Rounding=1 + 0 });local v11={Gamesense="rbxassetid://4817809188",Neverlose="rbxassetid://97643101798871",Fatality="rbxassetid://115982072912004"};v10:AddDropdown("HitSoundSelector",{Values={"Gamesense","Neverlose","Fatality"},Default=2 -1 ,Multi=false,Text="Hit Sound Type"});local v12=v5.Visual:AddRightGroupbox("Filters");v12:AddToggle("IgnoreGuards",{Text="Ignore Guards",Default=false});v12:AddToggle("IgnoreInmates",{Text="Ignore Inmates",Default=false});v12:AddToggle("IgnoreCriminals",{Text="Ignore Criminals",Default=false});v12:AddToggle("IgnoreNeutral",{Text="Ignore Neutral",Default=false});v12:AddToggle("IgnoreFriends",{Text="Ignore Friends",Default=false});local v13=game:GetService("Players");local v14=game:GetService("RunService");local v15=game:GetService("UserInputService");local v16=workspace.CurrentCamera;local v17=v13.LocalPlayer;local v18=v17:GetMouse();local v19={};local v20=Drawing.new("Circle");v20.Thickness=1 + 0 ;v20.NumSides=100;v20.Filled=false;v20.Transparency=1 + 0 ;local v25=Instance.new("Sound",game:GetService("SoundService"));local v26=Instance.new("Highlight");v26.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop;local function v29() return Color3.fromHSV((tick()%5)/5 ,886 -(261 + 624) ,1 -0 );end local function v30(v35) local v36=1080 -(1020 + 60) ;local v37;while true do if (v36==(1423 -(630 + 793))) then v37=(v35.Team and v35.Team.Name) or "Neutral" ;if (v37=="Guards") then return "Guard",Color3.fromRGB(0 -0 ,0 -0 ,255);elseif (v37=="Inmates") then return "Inmate",Color3.fromRGB(101 + 154 ,567 -402 ,1747 -(760 + 987) );elseif (v37=="Criminals") then return "Criminal",Color3.fromRGB(255,1913 -(1789 + 124) ,766 -(745 + 21) );else return "Neutral",Color3.fromRGB(88 + 167 ,701 -446 ,1000 -745 );end break;end end end local function v31(v38,v39) local v40=0 + 0 ;local v41;local v42;while true do if (v40==(0 + 0)) then if  not Toggles.WallCheck.Value then return true;end v41=RaycastParams.new();v40=1056 -(87 + 968) ;end if (v40==(4 -3)) then v41.FilterType=Enum.RaycastFilterType.Exclude;v41.FilterDescendantsInstances={v17.Character,v16};v40=4 -2 ;end if (v40==2) then v42=workspace:Raycast(v16.CFrame.Position,(v38.Position-v16.CFrame.Position).Unit * (2413 -(447 + 966)) ,v41);return v42 and v42.Instance:IsDescendantOf(v39) ;end end end local function v32() local v43=nil;local v44=Options.FovRadius.Value;local v45=Vector2.new(v16.ViewportSize.X/2 ,v16.ViewportSize.Y/(5 -3) );for v93,v94 in ipairs(v13:GetPlayers()) do local v95=1817 -(1703 + 114) ;local v96;local v97;local v98;while true do if (v95==2) then if (v98 and v97 and (v97.Health>(701 -(376 + 325)))) then local v159=0 -0 ;local v160;local v161;local v162;local v163;while true do if (1==v159) then v163=false;if (Toggles.AimIgnoreFriends.Value and v162) then v163=true;end v159=5 -3 ;end if (v159==(1 + 1)) then if (Toggles.AimIgnoreGuards.Value and (v160=="Guard")) then v163=true;end if (Toggles.AimIgnoreInmates.Value and (v160=="Inmate")) then v163=true;end v159=6 -3 ;end if (v159==(17 -(9 + 5))) then if (Toggles.AimIgnoreCriminals.Value and (v160=="Criminal")) then v163=true;end if (Toggles.AimIgnoreNeutral.Value and (v160=="Neutral")) then v163=true;end v159=380 -(85 + 291) ;end if ((1265 -(243 + 1022))==v159) then v160,v161=v30(v94);v162=v17:IsFriendsWith(v94.UserId);v159=1;end if (v159==(14 -10)) then if  not v163 then local v187,v188=v16:WorldToViewportPoint(v98.Position);if v188 then local v189=(Vector2.new(v187.X,v187.Y) -v45).Magnitude;if ((v189<v44) and v31(v98,v96)) then local v190=0 + 0 ;while true do if (v190==(1180 -(1123 + 57))) then v44=v189;v43=v98;break;end end end end end break;end end end break;end if (v95==(1 + 0)) then v97=v96 and v96:FindFirstChild("Humanoid") ;v98=v96 and v96:FindFirstChild(((Options.AimPart.Value=="Head") and "Head") or "UpperTorso" ) ;v95=256 -(163 + 91) ;end if (v95==(1930 -(1869 + 61))) then if (v94==v17) then continue;end v96=v94.Character;v95=1 + 0 ;end end end return v43;end local function v33(v46) local v47=Drawing.new("Square");v47.Visible=false;v47.Thickness=3 -2 ;v47.Transparency=1 -0 ;v47.Filled=false;local v52=Drawing.new("Text");v52.Visible=false;v52.Size=14;v52.Center=true;v52.Outline=true;local v57=Drawing.new("Text");v57.Visible=false;v57.Size=2 + 12 ;v57.Center=true;v57.Outline=true;local v62=Drawing.new("Text");v62.Visible=false;v62.Text="Friend";v62.Color=Color3.fromRGB(0 -0 ,255,0);v62.Size=14;v62.Center=true;v62.Outline=true;local v69=Drawing.new("Text");v69.Visible=false;v69.Size=14;v69.Center=true;v69.Outline=true;local v74=Instance.new("Highlight");v74.Enabled=false;v74.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop;v19[v46]={Box=v47,Name=v52,Health=v57,FriendLabel=v62,RoleLabel=v69,Highlight=v74};end for v79,v80 in ipairs(v13:GetPlayers()) do if (v80~=v17) then v33(v80);end end v13.PlayerAdded:Connect(function(v81) if (v81~=v17) then v33(v81);end end);v13.PlayerRemoving:Connect(function(v82) if v19[v82] then local v112=0 + 0 ;while true do if (v112==(1474 -(1329 + 145))) then for v164,v165 in pairs(v19[v82]) do if (typeof(v165)=="Instance") then v165:Destroy();else v165:Remove();end end v19[v82]=nil;break;end end end end);local v34={};v14.RenderStepped:Connect(function() local v83=v29();local v84=Vector2.new(v16.ViewportSize.X/(973 -(140 + 831)) ,v16.ViewportSize.Y/(1852 -(1409 + 441)) );v20.Visible=Toggles.ShowFov.Value;v20.Radius=Options.FovRadius.Value;v20.Position=v84;v20.Color=(Toggles.FovRainbow.Value and v83) or Options.FovColor.Value ;if Toggles.AimEnabled.Value then local v113=0;local v114;while true do if (v113==(718 -(15 + 703))) then v114=v32();if v114 then local v172=Options.AimSmooth.Value;local v173=CFrame.new(v16.CFrame.Position,v114.Position);v16.CFrame=v16.CFrame:Lerp(v173,(1 + 0)/v172 );if Toggles.AutoShoot.Value then mouse1press();task.wait();mouse1release();end end break;end end end if (Toggles.SelfChams.Value and v17.Character) then local v115=438 -(262 + 176) ;local v116;while true do if (v115==2) then v26.OutlineColor=v116;break;end if (v115==(1721 -(345 + 1376))) then v26.Parent=v17.Character;v26.Enabled=true;v115=689 -(198 + 490) ;end if (v115==1) then v116=(Toggles.SelfChamsRainbow.Value and v83) or Options.SelfChamsColor.Value ;v26.FillColor=v116;v115=8 -6 ;end end else v26.Enabled=false;end for v99,v100 in ipairs(v13:GetPlayers()) do local v101=0;local v102;while true do if (v101==(2 -1)) then if v102 then if (v34[v100] and (v102.Health<v34[v100])) then if Toggles.HitSound.Value then v25.SoundId=v11[Options.HitSoundSelector.Value];v25.Volume=Options.HitSoundVolume.Value;v25:Play();end end v34[v100]=v102.Health;end break;end if ((1206 -(696 + 510))==v101) then if (v100==v17) then continue;end v102=v100.Character and v100.Character:FindFirstChild("Humanoid") ;v101=1;end end end for v103,v104 in pairs(v19) do local v105=v103.Character;local v106=v105 and v105:FindFirstChild("Humanoid") ;local v107=v105 and v105:FindFirstChild("HumanoidRootPart") ;local v108=v17:IsFriendsWith(v103.UserId);local v109,v110=v30(v103);local v111=false;if (Toggles.IgnoreFriends.Value and v108) then v111=true;end if (Toggles.IgnoreGuards.Value and (v109=="Guard")) then v111=true;end if (Toggles.IgnoreInmates.Value and (v109=="Inmate")) then v111=true;end if (Toggles.IgnoreCriminals.Value and (v109=="Criminal")) then v111=true;end if (Toggles.IgnoreNeutral.Value and (v109=="Neutral")) then v111=true;end if ( not v111 and v107 and v106 and (v106.Health>(0 -0))) then local v121,v122=v16:WorldToViewportPoint(v107.Position);if v122 then local v132=v16:WorldToViewportPoint(v107.Position + Vector3.new(1262 -(1091 + 171) ,1 + 2 ,0) );local v133=v16:WorldToViewportPoint(v107.Position-Vector3.new(0 -0 ,3.5,0 -0 ) );local v134=math.abs(v132.Y-v133.Y );local v135=v134 * (374.6 -(123 + 251)) ;v104.Box.Visible=Toggles.EspToggle.Value;v104.Box.Size=Vector2.new(v135,v134);v104.Box.Position=Vector2.new(v121.X-(v135/(9 -7)) ,v121.Y-(v134/(700 -(208 + 490))) );v104.Box.Color=(Toggles.BoxRainbow.Value and v83) or Options.EspColor.Value ;v104.Name.Visible=Toggles.EspName.Value;v104.Name.Text=v103.Name;v104.Name.Position=Vector2.new(v121.X,(v121.Y-(v134/2)) -(2 + 13) );v104.Name.Color=(Toggles.NameRainbow.Value and v83) or Options.NameColor.Value ;v104.Health.Visible=Toggles.EspHealth.Value;v104.Health.Text="HP: "   .. math.floor(v106.Health) ;v104.Health.Position=Vector2.new(v121.X,v121.Y + (v134/2) + 3 + 2 );v104.Health.Color=(Toggles.HealthRainbow.Value and v83) or Options.HealthColor.Value ;v104.FriendLabel.Visible=Toggles.FriendEsp.Value and v108 ;v104.FriendLabel.Position=Vector2.new(v121.X,(v121.Y-(v134/(838 -(660 + 176)))) -(4 + 26) );v104.RoleLabel.Visible=Toggles.EspRoles.Value;v104.RoleLabel.Text=v109;v104.RoleLabel.Color=v110;v104.RoleLabel.Position=Vector2.new(v121.X,v121.Y + (v134/2) + (222 -(14 + 188)) );if Toggles.ChamsToggle.Value then v104.Highlight.Parent=v105;v104.Highlight.Enabled=true;local v177=(Toggles.ChamsRainbow.Value and v83) or Options.ChamsColor.Value ;v104.Highlight.FillColor=v177;v104.Highlight.OutlineColor=v177;else v104.Highlight.Enabled=false;end else for v168,v169 in pairs(v104) do if (typeof(v169)~="Instance") then v169.Visible=false;else v169.Enabled=false;end end end else for v124,v125 in pairs(v104) do if (typeof(v125)~="Instance") then v125.Visible=false;else v125.Enabled=false;end end end end end);v15.InputBegan:Connect(function(v91,v92) if ( not v92 and (v91.KeyCode==Enum.KeyCode.Delete)) then v1:Toggle();end end);v2:SetLibrary(v1);v3:SetLibrary(v1);v3:IgnoreThemeSettings();v3:SetIgnoreIndexes({"MenuKeybind"});v2:SetFolder("cetyx");v3:SetFolder("cetyx/main");v3:BuildConfigSection(v5.Config);v2:BuildThemeSection(v5.Config);v3:LoadAutoloadConfig();
+local Window = Library:CreateWindow({
+    Title = 'cetyx.xyz',
+    Center = true,
+    AutoShow = true,
+    TabPadding = 8,
+    MenuFadeTime = 0.2
+})
+
+local Tabs = {
+    Aimbot = Window:AddTab('Aimbot'),
+    Visual = Window:AddTab('Visual'),
+    Misc = Window:AddTab('Misc'),
+    Config = Window:AddTab('Config')
+}
+
+local AimbotGroup = Tabs.Aimbot:AddLeftGroupbox('Main')
+AimbotGroup:AddToggle('AimEnabled', { Text = 'Enabled', Default = false })
+AimbotGroup:AddToggle('AutoShoot', { Text = 'Auto Shoot', Default = false })
+AimbotGroup:AddToggle('WallCheck', { Text = 'Wall Check', Default = false })
+AimbotGroup:AddSlider('AimSmooth', { Text = 'Smoothness', Default = 1, Min = 1, Max = 50, Rounding = 1 })
+AimbotGroup:AddDropdown('AimPart', { Values = { 'Head', 'UpperTorso' }, Default = 1, Multi = false, Text = 'Target Part' })
+
+local AimFilters = Tabs.Aimbot:AddLeftGroupbox('Filters')
+AimFilters:AddToggle('AimIgnoreGuards', { Text = 'Ignore Guards', Default = false })
+AimFilters:AddToggle('AimIgnoreInmates', { Text = 'Ignore Inmates', Default = false })
+AimFilters:AddToggle('AimIgnoreCriminals', { Text = 'Ignore Criminals', Default = false })
+AimFilters:AddToggle('AimIgnoreNeutral', { Text = 'Ignore Neutral', Default = false })
+AimFilters:AddToggle('AimIgnoreFriends', { Text = 'Ignore Friends', Default = false })
+
+local FovGroup = Tabs.Aimbot:AddRightGroupbox('FOV Settings')
+FovGroup:AddToggle('ShowFov', { Text = 'Show FOV', Default = false }):AddColorPicker('FovColor', { Default = Color3.fromRGB(255, 255, 255) })
+FovGroup:AddToggle('FovRainbow', { Text = 'Rainbow FOV', Default = false })
+FovGroup:AddSlider('FovRadius', { Text = 'FOV Size', Default = 100, Min = 10, Max = 800, Rounding = 0 })
+
+local VisualBox = Tabs.Visual:AddLeftGroupbox('ESP')
+VisualBox:AddToggle('EspToggle', { Text = '2D Box', Default = false }):AddColorPicker('EspColor', { Default = Color3.fromRGB(255, 0, 0) })
+VisualBox:AddToggle('BoxRainbow', { Text = 'Box Rainbow', Default = false })
+VisualBox:AddSlider('BoxThickness', { Text = 'Box Thickness', Default = 1, Min = 1, Max = 5, Rounding = 0 })
+VisualBox:AddToggle('EspName', { Text = 'Names', Default = false }):AddColorPicker('NameColor', { Default = Color3.fromRGB(255, 255, 255) })
+VisualBox:AddToggle('NameRainbow', { Text = 'Name Rainbow', Default = false })
+VisualBox:AddToggle('EspHealth', { Text = 'Health', Default = false }):AddColorPicker('HealthColor', { Default = Color3.fromRGB(0, 255, 0) })
+VisualBox:AddToggle('HealthRainbow', { Text = 'Health Rainbow', Default = false })
+VisualBox:AddToggle('ChamsToggle', { Text = 'Chams', Default = false }):AddColorPicker('ChamsColor', { Default = Color3.fromRGB(255, 255, 255) })
+VisualBox:AddToggle('ChamsRainbow', { Text = 'Chams Rainbow', Default = false })
+VisualBox:AddToggle('SelfChams', { Text = 'Self Chams', Default = false }):AddColorPicker('SelfChamsColor', { Default = Color3.fromRGB(0, 255, 255) })
+VisualBox:AddToggle('SelfChamsRainbow', { Text = 'Self Chams Rainbow', Default = false })
+VisualBox:AddToggle('FriendEsp', { Text = 'Friend ESP', Default = false })
+VisualBox:AddToggle('EspRoles', { Text = 'Show Roles', Default = false })
+
+local MiscBox = Tabs.Misc:AddLeftGroupbox('Main')
+MiscBox:AddToggle('HitLog', { Text = 'Hit Log', Default = false })
+MiscBox:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
+MiscBox:AddSlider('HitSoundVolume', { Text = 'Sound Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
+
+local HitSounds = {
+    ['Gamesense'] = 'rbxassetid://4817809188',
+    ['Neverlose'] = 'rbxassetid://97643101798871',
+    ['Fatality'] = 'rbxassetid://115982072912004'
+}
+
+MiscBox:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
+
+local FilterBox = Tabs.Visual:AddRightGroupbox('Filters')
+FilterBox:AddToggle('IgnoreGuards', { Text = 'Ignore Guards', Default = false })
+FilterBox:AddToggle('IgnoreInmates', { Text = 'Ignore Inmates', Default = false })
+FilterBox:AddToggle('IgnoreCriminals', { Text = 'Ignore Criminals', Default = false })
+FilterBox:AddToggle('IgnoreNeutral', { Text = 'Ignore Neutral', Default = false })
+FilterBox:AddToggle('IgnoreFriends', { Text = 'Ignore Friends', Default = false })
+
+local Players = game:GetService('Players')
+local RunService = game:GetService('RunService')
+local UserInputService = game:GetService('UserInputService')
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local ESP = {}
+
+local FovCircle = Drawing.new('Circle')
+FovCircle.Thickness = 1
+FovCircle.NumSides = 100
+FovCircle.Filled = false
+FovCircle.Transparency = 1
+
+local HitSoundEffect = Instance.new("Sound", game:GetService("SoundService"))
+local SelfHighlight = Instance.new("Highlight")
+SelfHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+
+local function GetRainbowColor()
+    return Color3.fromHSV(tick() % 5 / 5, 1, 1)
+end
+
+local function GetRoleInfo(player)
+    local team = player.Team and player.Team.Name or "Neutral"
+    if team == "Guards" then return "Guard", Color3.fromRGB(0, 0, 255)
+    elseif team == "Inmates" then return "Inmate", Color3.fromRGB(255, 165, 0)
+    elseif team == "Criminals" then return "Criminal", Color3.fromRGB(255, 0, 0)
+    else return "Neutral", Color3.fromRGB(255, 255, 255) end
+end
+
+local function IsVisible(part, character)
+    if not Toggles.WallCheck.Value then return true end
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+    local result = workspace:Raycast(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000, params)
+    return result and result.Instance:IsDescendantOf(character)
+end
+
+local function GetClosestPlayer()
+    local target = nil
+    local shortestDist = Options.FovRadius.Value
+    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player == LocalPlayer then continue end
+        local char = player.Character
+        local hum = char and char:FindFirstChild("Humanoid")
+        local part = char and char:FindFirstChild(Options.AimPart.Value == "Head" and "Head" or "UpperTorso")
+        
+        if part and hum and hum.Health > 0 then
+            local role, _ = GetRoleInfo(player)
+            local isFriend = LocalPlayer:IsFriendsWith(player.UserId)
+            
+            local skip = false
+            if Toggles.AimIgnoreFriends.Value and isFriend then skip = true end
+            if Toggles.AimIgnoreGuards.Value and role == "Guard" then skip = true end
+            if Toggles.AimIgnoreInmates.Value and role == "Inmate" then skip = true end
+            if Toggles.AimIgnoreCriminals.Value and role == "Criminal" then skip = true end
+            if Toggles.AimIgnoreNeutral.Value and role == "Neutral" then skip = true end
+            
+            if not skip then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen then
+                    local mag = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if mag < shortestDist and IsVisible(part, char) then
+                        shortestDist = mag
+                        target = part
+                    end
+                end
+            end
+        end
+    end
+    return target
+end
+
+local function CreateESP(Player)
+    local Box = Drawing.new('Square')
+    Box.Visible = false
+    Box.Thickness = 1
+    Box.Transparency = 1
+    Box.Filled = false
+    local Name = Drawing.new('Text')
+    Name.Visible = false
+    Name.Size = 14
+    Name.Center = true
+    Name.Outline = true
+    local Health = Drawing.new('Text')
+    Health.Visible = false
+    Health.Size = 14
+    Health.Center = true
+    Health.Outline = true
+    local FriendLabel = Drawing.new('Text')
+    FriendLabel.Visible = false
+    FriendLabel.Text = 'Friend'
+    FriendLabel.Color = Color3.fromRGB(0, 255, 0)
+    FriendLabel.Size = 14
+    FriendLabel.Center = true
+    FriendLabel.Outline = true
+    local RoleLabel = Drawing.new('Text')
+    RoleLabel.Visible = false
+    RoleLabel.Size = 14
+    RoleLabel.Center = true
+    RoleLabel.Outline = true
+    local Highlight = Instance.new("Highlight")
+    Highlight.Enabled = false
+    Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    ESP[Player] = {Box = Box, Name = Name, Health = Health, FriendLabel = FriendLabel, RoleLabel = RoleLabel, Highlight = Highlight}
+end
+
+for _, player in ipairs(Players:GetPlayers()) do if player ~= LocalPlayer then CreateESP(player) end end
+Players.PlayerAdded:Connect(function(player) if player ~= LocalPlayer then CreateESP(player) end end)
+Players.PlayerRemoving:Connect(function(player)
+    if ESP[player] then
+        for _, d in pairs(ESP[player]) do if typeof(d) == "Instance" then d:Destroy() else d:Remove() end end
+        ESP[player] = nil
+    end
+end)
+
+local lastHealth = {}
+
+RunService.RenderStepped:Connect(function()
+    local rainbow = GetRainbowColor()
+    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    
+    FovCircle.Visible = Toggles.ShowFov.Value
+    FovCircle.Radius = Options.FovRadius.Value
+    FovCircle.Position = center
+    FovCircle.Color = Toggles.FovRainbow.Value and rainbow or Options.FovColor.Value
+
+    if Toggles.AimEnabled.Value then
+        local target = GetClosestPlayer()
+        if target then
+            local aimSmoothness = Options.AimSmooth.Value
+            local lookAt = CFrame.new(Camera.CFrame.Position, target.Position)
+            Camera.CFrame = Camera.CFrame:Lerp(lookAt, 1 / aimSmoothness)
+            
+            if Toggles.AutoShoot.Value then
+                mouse1press()
+                task.wait()
+                mouse1release()
+            end
+        end
+    end
+
+    if Toggles.SelfChams.Value and LocalPlayer.Character then
+        SelfHighlight.Parent = LocalPlayer.Character
+        SelfHighlight.Enabled = true
+        local sColor = Toggles.SelfChamsRainbow.Value and rainbow or Options.SelfChamsColor.Value
+        SelfHighlight.FillColor = sColor
+        SelfHighlight.OutlineColor = sColor
+    else
+        SelfHighlight.Enabled = false
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player == LocalPlayer then continue end
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then
+            if lastHealth[player] and hum.Health < lastHealth[player] then
+                if Toggles.HitSound.Value then
+                    HitSoundEffect.SoundId = HitSounds[Options.HitSoundSelector.Value]
+                    HitSoundEffect.Volume = Options.HitSoundVolume.Value
+                    HitSoundEffect:Play()
+                end
+            end
+            lastHealth[player] = hum.Health
+        end
+    end
+
+    for player, drawings in pairs(ESP) do
+        local character = player.Character
+        local humanoid = character and character:FindFirstChild('Humanoid')
+        local rootPart = character and character:FindFirstChild('HumanoidRootPart')
+        local isFriend = LocalPlayer:IsFriendsWith(player.UserId)
+        local role, roleCol = GetRoleInfo(player)
+        
+        local skip = false
+        if Toggles.IgnoreFriends.Value and isFriend then skip = true end
+        if Toggles.IgnoreGuards.Value and role == "Guard" then skip = true end
+        if Toggles.IgnoreInmates.Value and role == "Inmate" then skip = true end
+        if Toggles.IgnoreCriminals.Value and role == "Criminal" then skip = true end
+        if Toggles.IgnoreNeutral.Value and role == "Neutral" then skip = true end
+
+        if not skip and rootPart and humanoid and humanoid.Health > 0 then
+            local pos, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+            if onScreen then
+                local topPos = Camera:WorldToViewportPoint(rootPart.Position + Vector3.new(0, 3, 0))
+                local bottomPos = Camera:WorldToViewportPoint(rootPart.Position - Vector3.new(0, 3.5, 0))
+                local sizeY = math.abs(topPos.Y - bottomPos.Y)
+                local sizeX = sizeY * 0.6
+                drawings.Box.Visible = Toggles.EspToggle.Value
+                drawings.Box.Size = Vector2.new(sizeX, sizeY)
+                drawings.Box.Position = Vector2.new(pos.X - sizeX / 2, pos.Y - sizeY / 2)
+                drawings.Box.Color = Toggles.BoxRainbow.Value and rainbow or Options.EspColor.Value
+                drawings.Name.Visible = Toggles.EspName.Value
+                drawings.Name.Text = player.Name
+                drawings.Name.Position = Vector2.new(pos.X, pos.Y - sizeY / 2 - 15)
+                drawings.Name.Color = Toggles.NameRainbow.Value and rainbow or Options.NameColor.Value
+                drawings.Health.Visible = Toggles.EspHealth.Value
+                drawings.Health.Text = 'HP: ' .. math.floor(humanoid.Health)
+                drawings.Health.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + 5)
+                drawings.Health.Color = Toggles.HealthRainbow.Value and rainbow or Options.HealthColor.Value
+                drawings.FriendLabel.Visible = Toggles.FriendEsp.Value and isFriend
+                drawings.FriendLabel.Position = Vector2.new(pos.X, pos.Y - sizeY / 2 - 30)
+                drawings.RoleLabel.Visible = Toggles.EspRoles.Value
+                drawings.RoleLabel.Text = role
+                drawings.RoleLabel.Color = roleCol
+                drawings.RoleLabel.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + 20)
+                if Toggles.ChamsToggle.Value then
+                    drawings.Highlight.Parent = character
+                    drawings.Highlight.Enabled = true
+                    local cColor = Toggles.ChamsRainbow.Value and rainbow or Options.ChamsColor.Value
+                    drawings.Highlight.FillColor = cColor
+                    drawings.Highlight.OutlineColor = cColor
+                else drawings.Highlight.Enabled = false end
+            else for _, d in pairs(drawings) do if typeof(d) ~= "Instance" then d.Visible = false else d.Enabled = false end end end
+        else for _, d in pairs(drawings) do if typeof(d) ~= "Instance" then d.Visible = false else d.Enabled = false end end end
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input, processed) if not processed and input.KeyCode == Enum.KeyCode.Delete then Library:Toggle() end end)
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({'MenuKeybind'})
+ThemeManager:SetFolder('cetyx')
+SaveManager:SetFolder('cetyx/main')
+SaveManager:BuildConfigSection(Tabs.Config)
+ThemeManager:BuildThemeSection(Tabs.Config)
+SaveManager:LoadAutoloadConfig()
