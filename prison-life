@@ -89,10 +89,17 @@ SelfVisuals:AddSlider('SelfSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1
 
 local MiscMain = Tabs.Misc:AddLeftGroupbox('Main')
 MiscMain:AddToggle('HitLog', { Text = 'Hit Log', Default = false })
-MiscMain:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
-MiscMain:AddSlider('HitSoundVolume', { Text = 'Sound Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
-local HitSounds = { ['Gamesense'] = 'rbxassetid://4817809188', ['Neverlose'] = 'rbxassetid://97643101798871', ['Fatality'] = 'rbxassetid://115982072912004' }
-MiscMain:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
+
+local SoundAssets = { ['Gamesense'] = 'rbxassetid://4817809188', ['Neverlose'] = 'rbxassetid://97643101798871', ['Fatality'] = 'rbxassetid://115982072912004' }
+
+local SoundsTab = Tabs.Misc:AddRightGroupbox('Sounds')
+SoundsTab:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
+SoundsTab:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
+SoundsTab:AddSlider('HitSoundVolume', { Text = 'Hit Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
+SoundsTab:AddDivider()
+SoundsTab:AddToggle('KillSound', { Text = 'Kill Sound', Default = false })
+SoundsTab:AddDropdown('KillSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Kill Sound Type' })
+SoundsTab:AddSlider('KillSoundVolume', { Text = 'Kill Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
 
 local MiscMovement = Tabs.Misc:AddRightGroupbox('Movement')
 MiscMovement:AddToggle('WallTPEnabled', { Text = 'Auto Wall Teleport', Default = false }):AddKeyPicker('WallTPBind', { Default = 'None', SyncToggleState = true, Mode = 'Toggle', Text = 'Wall TP Toggle', NoUI = false })
@@ -116,6 +123,7 @@ FovCircle.Filled = false
 FovCircle.Transparency = 1
 
 local HitSoundEffect = Instance.new("Sound", game:GetService("SoundService"))
+local KillSoundEffect = Instance.new("Sound", game:GetService("SoundService"))
 local SelfHighlight = Instance.new("Highlight")
 SelfHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 
@@ -218,6 +226,7 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 local lastHealth = {}
+local processedKills = {}
 local OriginalMaterials = {}
 Toggles.PotatoMode:OnChanged(function()
     if Toggles.PotatoMode.Value then
@@ -292,16 +301,39 @@ RunService.RenderStepped:Connect(function()
         local hum = char and char:FindFirstChild("Humanoid")
         if hum then
             if lastHealth[player] and hum.Health < lastHealth[player] then
-                if Toggles.HitSound.Value and Mouse.Target and Mouse.Target:IsDescendantOf(char) then
-                    HitSoundEffect.SoundId = HitSounds[Options.HitSoundSelector.Value]
-                    HitSoundEffect.Volume = Options.HitSoundVolume.Value
-                    HitSoundEffect:Play()
-                    if Toggles.HitLog.Value then 
-                        local dmg = math.floor(lastHealth[player] - hum.Health)
-                        Library:Notify(string.format("Hit %s for %d | Health: %d", player.Name, dmg, math.floor(hum.Health)), 3) 
+                local isMyTarget = false
+                local rayParam = RaycastParams.new()
+                rayParam.FilterType = Enum.RaycastFilterType.Exclude
+                rayParam.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+                local rayResult = workspace:Raycast(Camera.CFrame.Position, Camera.CFrame.LookVector * 5000, rayParam)
+                if rayResult and rayResult.Instance:IsDescendantOf(char) then
+                    isMyTarget = true
+                end
+
+                if isMyTarget then
+                    if Toggles.HitSound.Value and hum.Health > 0 then
+                        HitSoundEffect.SoundId = SoundAssets[Options.HitSoundSelector.Value]
+                        HitSoundEffect.Volume = Options.HitSoundVolume.Value
+                        HitSoundEffect:Play()
+                        if Toggles.HitLog.Value then 
+                            local dmg = math.floor(lastHealth[player] - hum.Health)
+                            Library:Notify(string.format("Hit %s for %d | Health: %d", player.Name, dmg, math.floor(hum.Health)), 3) 
+                        end
+                    end
+                    
+                    if Toggles.KillSound.Value and hum.Health <= 0 and not processedKills[player] then
+                        processedKills[player] = true
+                        KillSoundEffect.SoundId = SoundAssets[Options.KillSoundSelector.Value]
+                        KillSoundEffect.Volume = Options.KillSoundVolume.Value
+                        KillSoundEffect:Play()
                     end
                 end
             end
+            
+            if hum.Health > 0 then
+                processedKills[player] = nil
+            end
+            
             lastHealth[player] = hum.Health
         end
     end
