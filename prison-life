@@ -1,11 +1,10 @@
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
-
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 local Window = Library:CreateWindow({
-    Title = 'cetyx.xyz | discord.com/pFtx74bZWu',
+    Title = 'cetyx.xyz | dsc.gg/cetyx',
     Center = true,
     AutoShow = true,
     TabPadding = 8,
@@ -19,117 +18,18 @@ local Tabs = {
     Config = Window:AddTab('Config')
 }
 
-local watermarkPosition = Vector2.new(10, 10)
-local watermarkSize = Vector2.new(0, 22)
-
-local WatermarkBack = Drawing.new("Square")
-WatermarkBack.Visible = true
-WatermarkBack.Filled = true
-WatermarkBack.Color = Color3.fromRGB(10, 10, 10)
-WatermarkBack.Thickness = 1
-WatermarkBack.Transparency = 1
-
-local WatermarkOutline = Drawing.new("Square")
-WatermarkOutline.Visible = true
-WatermarkOutline.Filled = false
-WatermarkOutline.Color = Color3.fromRGB(40, 40, 40)
-WatermarkOutline.Thickness = 1
-WatermarkOutline.Transparency = 1
-
-local WatermarkGradient = Drawing.new("Square")
-WatermarkGradient.Visible = true
-WatermarkGradient.Filled = true
-WatermarkGradient.Color = Color3.fromRGB(0, 110, 255)
-WatermarkGradient.Thickness = 1
-WatermarkGradient.Transparency = 1
-
-local WatermarkText = Drawing.new("Text")
-WatermarkText.Visible = true
-WatermarkText.Size = 13
-WatermarkText.Color = Color3.fromRGB(240, 240, 240)
-WatermarkText.Outline = false
-WatermarkText.Center = false
-WatermarkText.Font = Drawing.Fonts.UI
-
-local function MakeDraggable(mainObject)
-    local UserInputService = game:GetService("UserInputService")
-    local dragging = false
-    local dragStart = nil
-    local startPos = nil
-
-    UserInputService.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local mousePos = UserInputService:GetMouseLocation()
-            if mousePos.X >= mainObject.Position.X and mousePos.X <= mainObject.Position.X + mainObject.Size.X and
-               mousePos.Y >= mainObject.Position.Y and mousePos.Y <= mainObject.Position.Y + mainObject.Size.Y then
-                dragging = true
-                dragStart = input.Position
-                startPos = mainObject.Position
-            end
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            watermarkPosition = startPos + Vector2.new(delta.X, delta.Y)
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-end
-
-MakeDraggable(WatermarkBack)
-
-local lastTime = 0
-local fpsCount = 0
-local fps = 0
-
-local function UpdateWatermarkUI()
-    fpsCount = fpsCount + 1
-    if tick() - lastTime >= 1 then
-        fps = fpsCount
-        fpsCount = 0
-        lastTime = tick()
+local function EvaluateColor(mode, c1, c2, speed)
+    if mode == 'Rainbow' then
+        return Color3.fromHSV((tick() * speed) % 1, 1, 1)
+    elseif mode == 'Gradient' then
+        local alpha = (math.sin(tick() * speed) + 1) / 2
+        return c1:Lerp(c2, alpha)
     end
-
-    local Time = os.date("%H:%M:%S")
-    local PlayerName = game:GetService("Players").LocalPlayer.Name
-    local textContent = string.format("cetyx.xyz | %s | %d fps | %s", PlayerName, fps, Time)
-    
-    WatermarkText.Text = textContent
-    local textBounds = WatermarkText.TextBounds
-    watermarkSize = Vector2.new(textBounds.X + 12, 22)
-
-    WatermarkBack.Position = watermarkPosition
-    WatermarkBack.Size = watermarkSize
-
-    WatermarkOutline.Position = watermarkPosition - Vector2.new(1, 1)
-    WatermarkOutline.Size = watermarkSize + Vector2.new(2, 2)
-
-    WatermarkGradient.Position = watermarkPosition
-    WatermarkGradient.Size = Vector2.new(watermarkSize.X, 1)
-
-    WatermarkText.Position = watermarkPosition + Vector2.new(6, 4)
+    return c1
 end
 
 local AimbotGroup = Tabs.Aimbot:AddLeftGroupbox('Main')
-
-AimbotGroup:AddToggle('AimEnabled', { 
-    Text = 'Enabled', 
-    Default = false 
-}):AddKeyPicker('AimBind', { 
-    Default = 'MB2', 
-    SyncToggleState = false, 
-    Mode = 'Hold', 
-    Text = 'Aimbot Keybind', 
-    NoUI = false 
-})
-
+AimbotGroup:AddToggle('AimEnabled', { Text = 'Enabled', Default = false }):AddKeyPicker('AimBind', { Default = 'MB2', SyncToggleState = false, Mode = 'Hold', Text = 'Aimbot Keybind', NoUI = false })
 AimbotGroup:AddToggle('AutoShoot', { Text = 'Auto Shoot', Default = false })
 AimbotGroup:AddToggle('WallCheck', { Text = 'Wall Check', Default = false })
 AimbotGroup:AddSlider('AimSmooth', { Text = 'Smoothness', Default = 1, Min = 1, Max = 50, Rounding = 1 })
@@ -144,46 +44,61 @@ AimFilters:AddToggle('AimIgnoreNeutral', { Text = 'Ignore Neutral', Default = fa
 AimFilters:AddToggle('AimIgnoreFriends', { Text = 'Ignore Friends', Default = false })
 
 local FovGroup = Tabs.Aimbot:AddRightGroupbox('FOV Settings')
-FovGroup:AddToggle('ShowFov', { Text = 'Show FOV', Default = false }):AddColorPicker('FovColor', { Default = Color3.fromRGB(255, 255, 255) })
-FovGroup:AddToggle('FovRainbow', { Text = 'Rainbow FOV', Default = false })
+FovGroup:AddToggle('ShowFov', { Text = 'Show FOV Circle', Default = false })
 FovGroup:AddSlider('FovRadius', { Text = 'FOV Size', Default = 100, Min = 10, Max = 800, Rounding = 0 })
+FovGroup:AddDropdown('FovMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Color Mode' })
+FovGroup:AddLabel('Colors'):AddColorPicker('FovColor', { Default = Color3.fromRGB(255, 255, 255) }):AddColorPicker('FovColor2', { Default = Color3.fromRGB(0, 110, 255) })
+FovGroup:AddSlider('FovSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
 
-local VisualBox = Tabs.Visual:AddLeftGroupbox('ESP')
-VisualBox:AddToggle('EspToggle', { Text = '2D Box', Default = false }):AddColorPicker('EspColor', { Default = Color3.fromRGB(255, 0, 0) })
-VisualBox:AddToggle('BoxRainbow', { Text = 'Box Rainbow', Default = false })
+local VisualBox = Tabs.Visual:AddLeftGroupbox('ESP Box')
+VisualBox:AddToggle('EspToggle', { Text = '2D Box', Default = false })
 VisualBox:AddSlider('BoxThickness', { Text = 'Box Thickness', Default = 1, Min = 1, Max = 5, Rounding = 0 })
-VisualBox:AddToggle('EspName', { Text = 'Names', Default = false }):AddColorPicker('NameColor', { Default = Color3.fromRGB(255, 255, 255) })
-VisualBox:AddToggle('NameRainbow', { Text = 'Name Rainbow', Default = false })
-VisualBox:AddToggle('EspHealth', { Text = 'Health', Default = false }):AddColorPicker('HealthColor', { Default = Color3.fromRGB(0, 255, 0) })
-VisualBox:AddToggle('HealthRainbow', { Text = 'Health Rainbow', Default = false })
-VisualBox:AddToggle('ChamsToggle', { Text = 'Chams', Default = false }):AddColorPicker('ChamsColor', { Default = Color3.fromRGB(255, 255, 255) })
-VisualBox:AddToggle('ChamsRainbow', { Text = 'Chams Rainbow', Default = false })
-VisualBox:AddToggle('SelfChams', { Text = 'Self Chams', Default = false }):AddColorPicker('SelfChamsColor', { Default = Color3.fromRGB(0, 255, 255) })
-VisualBox:AddToggle('SelfChamsRainbow', { Text = 'Self Chams Rainbow', Default = false })
-VisualBox:AddToggle('FriendEsp', { Text = 'Friend ESP', Default = false })
-VisualBox:AddToggle('EspRoles', { Text = 'Show Roles', Default = false })
+VisualBox:AddDropdown('EspMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Outline Mode' })
+VisualBox:AddLabel('Outline Color'):AddColorPicker('EspColor', { Default = Color3.fromRGB(255, 0, 0) }):AddColorPicker('EspColor2', { Default = Color3.fromRGB(0, 255, 255) })
+VisualBox:AddDivider()
+VisualBox:AddToggle('BoxFill', { Text = 'Filled Box', Default = false })
+VisualBox:AddSlider('BoxFillTrans', { Text = 'Fill Transparency', Default = 0.5, Min = 0, Max = 1, Rounding = 1 })
+VisualBox:AddDropdown('FillMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Fill Mode' })
+VisualBox:AddLabel('Fill Color'):AddColorPicker('FillColor', { Default = Color3.fromRGB(255, 255, 255) }):AddColorPicker('FillColor2', { Default = Color3.fromRGB(100, 100, 100) })
+VisualBox:AddSlider('EspSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
 
-local FilterBox = Tabs.Visual:AddRightGroupbox('Filters')
-FilterBox:AddToggle('IgnoreGuards', { Text = 'Ignore Guards', Default = false })
-FilterBox:AddToggle('IgnoreInmates', { Text = 'Ignore Inmates', Default = false })
-FilterBox:AddToggle('IgnoreCriminals', { Text = 'Ignore Criminals', Default = false })
-FilterBox:AddToggle('IgnoreNeutral', { Text = 'Ignore Neutral', Default = false })
-FilterBox:AddToggle('IgnoreFriends', { Text = 'Ignore Friends', Default = false })
+local TextESPBox = Tabs.Visual:AddRightGroupbox('ESP Texts')
+TextESPBox:AddToggle('EspName', { Text = 'Names', Default = false })
+TextESPBox:AddDropdown('NameMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Name Mode' })
+TextESPBox:AddLabel('Colors'):AddColorPicker('NameColor', { Default = Color3.fromRGB(255, 255, 255) }):AddColorPicker('NameColor2', { Default = Color3.fromRGB(255, 0, 255) })
+TextESPBox:AddSlider('NameSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
+TextESPBox:AddToggle('EspHealth', { Text = 'Health', Default = false })
+TextESPBox:AddDropdown('HealthMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Health Mode' })
+TextESPBox:AddLabel('Colors'):AddColorPicker('HealthColor', { Default = Color3.fromRGB(0, 255, 0) }):AddColorPicker('HealthColor2', { Default = Color3.fromRGB(255, 255, 0) })
+TextESPBox:AddSlider('HealthSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
+TextESPBox:AddToggle('EspRole', { Text = 'Role', Default = false })
+TextESPBox:AddToggle('EspRoleColor', { Text = 'Use Team Color', Default = true })
+TextESPBox:AddToggle('EspFriend', { Text = 'Friend Label', Default = false })
 
-local MiscBox = Tabs.Misc:AddLeftGroupbox('Main')
-MiscBox:AddToggle('HitLog', { Text = 'Hit Log', Default = false })
-MiscBox:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
-MiscBox:AddSlider('HitSoundVolume', { Text = 'Sound Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
+local ChamsESPBox = Tabs.Visual:AddLeftGroupbox('Chams')
+ChamsESPBox:AddToggle('ChamsToggle', { Text = 'Chams', Default = false })
+ChamsESPBox:AddDropdown('ChamsMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Chams Mode' })
+ChamsESPBox:AddLabel('Colors'):AddColorPicker('ChamsColor', { Default = Color3.fromRGB(255, 255, 255) }):AddColorPicker('ChamsColor2', { Default = Color3.fromRGB(0, 255, 0) })
+ChamsESPBox:AddSlider('ChamsSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
 
-local HitSounds = {
-    ['Gamesense'] = 'rbxassetid://4817809188',
-    ['Neverlose'] = 'rbxassetid://97643101798871',
-    ['Fatality'] = 'rbxassetid://115982072912004'
-}
+local SelfVisuals = Tabs.Visual:AddRightGroupbox('Self Visuals')
+SelfVisuals:AddToggle('SelfChams', { Text = 'Self Chams', Default = false })
+SelfVisuals:AddDropdown('SelfMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Chams Mode' })
+SelfVisuals:AddLabel('Colors'):AddColorPicker('SelfColor', { Default = Color3.fromRGB(0, 255, 255) }):AddColorPicker('SelfColor2', { Default = Color3.fromRGB(0, 0, 255) })
+SelfVisuals:AddSlider('SelfSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
 
-MiscBox:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
+local MiscMain = Tabs.Misc:AddLeftGroupbox('Main')
+MiscMain:AddToggle('HitLog', { Text = 'Hit Log', Default = false })
+MiscMain:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
+MiscMain:AddSlider('HitSoundVolume', { Text = 'Sound Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
+local HitSounds = { ['Gamesense'] = 'rbxassetid://4817809188', ['Neverlose'] = 'rbxassetid://97643101798871', ['Fatality'] = 'rbxassetid://115982072912004' }
+MiscMain:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
 
-local OptimizationBox = Tabs.Misc:AddRightGroupbox('Texture Changer')
+local MiscMovement = Tabs.Misc:AddRightGroupbox('Movement')
+MiscMovement:AddToggle('WallTPEnabled', { Text = 'Auto Wall Teleport', Default = false }):AddKeyPicker('WallTPBind', { Default = 'None', SyncToggleState = true, Mode = 'Toggle', Text = 'Wall TP Toggle', NoUI = false })
+MiscMovement:AddSlider('WallTPDist', { Text = 'Teleport Distance', Default = 7, Min = 1, Max = 20, Rounding = 1 })
+
+local OptimizationBox = Tabs.Misc:AddRightGroupbox('Optimization')
 OptimizationBox:AddToggle('PotatoMode', { Text = 'Potato Mode', Default = false })
 
 local Players = game:GetService('Players')
@@ -204,13 +119,9 @@ local HitSoundEffect = Instance.new("Sound", game:GetService("SoundService"))
 local SelfHighlight = Instance.new("Highlight")
 SelfHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 
-local function GetRainbowColor()
-    return Color3.fromHSV(tick() % 5 / 5, 1, 1)
-end
-
 local function GetRoleInfo(player)
     local team = player.Team and player.Team.Name or "Neutral"
-    if team == "Guards" then return "Guard", Color3.fromRGB(0, 0, 255)
+    if team == "Guards" then return "Guard", Color3.fromRGB(0, 150, 255)
     elseif team == "Inmates" then return "Inmate", Color3.fromRGB(255, 165, 0)
     elseif team == "Criminals" then return "Criminal", Color3.fromRGB(255, 0, 0)
     else return "Neutral", Color3.fromRGB(255, 255, 255) end
@@ -229,28 +140,23 @@ local function GetClosestPlayer()
     local target = nil
     local shortestDist = Options.FovRadius.Value
     local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-
     for _, player in ipairs(Players:GetPlayers()) do
         if player == LocalPlayer then continue end
         local char = player.Character
         local hum = char and char:FindFirstChild("Humanoid")
         local root = char and char:FindFirstChild("HumanoidRootPart")
         local part = char and char:FindFirstChild(Options.AimPart.Value == "Head" and "Head" or "UpperTorso")
-        
         if part and root and hum and hum.Health > 0 then
             local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (root.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude) or 0
             if dist > Options.AimMaxDist.Value then continue end
-
             local role, _ = GetRoleInfo(player)
             local isFriend = LocalPlayer:IsFriendsWith(player.UserId)
-            
             local skip = false
             if Toggles.AimIgnoreFriends.Value and isFriend then skip = true end
             if Toggles.AimIgnoreGuards.Value and role == "Guard" then skip = true end
             if Toggles.AimIgnoreInmates.Value and role == "Inmate" then skip = true end
             if Toggles.AimIgnoreCriminals.Value and role == "Criminal" then skip = true end
             if Toggles.AimIgnoreNeutral.Value and role == "Neutral" then skip = true end
-            
             if not skip then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
                 if onScreen then
@@ -272,6 +178,10 @@ local function CreateESP(Player)
     Box.Thickness = 1
     Box.Transparency = 1
     Box.Filled = false
+    local BoxFill = Drawing.new('Square')
+    BoxFill.Visible = false
+    BoxFill.Thickness = 0
+    BoxFill.Filled = true
     local Name = Drawing.new('Text')
     Name.Visible = false
     Name.Size = 14
@@ -282,22 +192,20 @@ local function CreateESP(Player)
     Health.Size = 14
     Health.Center = true
     Health.Outline = true
-    local FriendLabel = Drawing.new('Text')
-    FriendLabel.Visible = false
-    FriendLabel.Text = 'Friend'
-    FriendLabel.Color = Color3.fromRGB(0, 255, 0)
-    FriendLabel.Size = 14
-    FriendLabel.Center = true
-    FriendLabel.Outline = true
-    local RoleLabel = Drawing.new('Text')
-    RoleLabel.Visible = false
-    RoleLabel.Size = 14
-    RoleLabel.Center = true
-    RoleLabel.Outline = true
+    local Role = Drawing.new('Text')
+    Role.Visible = false
+    Role.Size = 14
+    Role.Center = true
+    Role.Outline = true
+    local Friend = Drawing.new('Text')
+    Friend.Visible = false
+    Friend.Size = 14
+    Friend.Center = true
+    Friend.Outline = true
     local Highlight = Instance.new("Highlight")
     Highlight.Enabled = false
     Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    ESP[Player] = {Box = Box, Name = Name, Health = Health, FriendLabel = FriendLabel, RoleLabel = RoleLabel, Highlight = Highlight}
+    ESP[Player] = {Box = Box, BoxFill = BoxFill, Name = Name, Health = Health, Role = Role, Friend = Friend, Highlight = Highlight}
 end
 
 for _, player in ipairs(Players:GetPlayers()) do if player ~= LocalPlayer then CreateESP(player) end end
@@ -311,15 +219,12 @@ end)
 
 local lastHealth = {}
 local OriginalMaterials = {}
-
 Toggles.PotatoMode:OnChanged(function()
     if Toggles.PotatoMode.Value then
         for _, v in ipairs(game:GetDescendants()) do
             if v:IsA("BasePart") then
                 OriginalMaterials[v] = {Material = v.Material, Transparency = v.Transparency}
-                if v.Transparency ~= 1 then
-                    v.Material = Enum.Material.SmoothPlastic
-                end
+                if v.Transparency ~= 1 then v.Material = Enum.Material.SmoothPlastic end
             elseif v:IsA("Texture") or v:IsA("Decal") then
                 OriginalMaterials[v] = {Transparency = v.Transparency}
                 v.Transparency = 1
@@ -341,14 +246,11 @@ Toggles.PotatoMode:OnChanged(function()
 end)
 
 RunService.RenderStepped:Connect(function()
-    UpdateWatermarkUI()
-    local rainbow = GetRainbowColor()
     local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    
     FovCircle.Visible = Toggles.ShowFov.Value
     FovCircle.Radius = Options.FovRadius.Value
     FovCircle.Position = center
-    FovCircle.Color = Toggles.FovRainbow.Value and rainbow or Options.FovColor.Value
+    FovCircle.Color = EvaluateColor(Options.FovMode.Value, Options.FovColor.Value, Options.FovColor2.Value, Options.FovSpeed.Value)
 
     if Toggles.AimEnabled.Value and Options.AimBind:GetState() then
         local target = GetClosestPlayer()
@@ -356,9 +258,20 @@ RunService.RenderStepped:Connect(function()
             local aimSmoothness = Options.AimSmooth.Value
             local lookAt = CFrame.new(Camera.CFrame.Position, target.Position)
             Camera.CFrame = Camera.CFrame:Lerp(lookAt, 1 / aimSmoothness)
-            
-            if Toggles.AutoShoot.Value then
-                mouse1click()
+            if Toggles.AutoShoot.Value then mouse1click() end
+        end
+    end
+
+    if Toggles.WallTPEnabled.Value and LocalPlayer.Character then
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            local rayParam = RaycastParams.new()
+            rayParam.FilterType = Enum.RaycastFilterType.Exclude
+            rayParam.FilterDescendantsInstances = {LocalPlayer.Character}
+            local rayResult = workspace:Raycast(root.Position, root.CFrame.LookVector * 2, rayParam)
+            if rayResult then
+                local targetPos = rayResult.Position + (root.CFrame.LookVector * Options.WallTPDist.Value)
+                root.CFrame = CFrame.new(targetPos, targetPos + root.CFrame.LookVector)
             end
         end
     end
@@ -366,7 +279,7 @@ RunService.RenderStepped:Connect(function()
     if Toggles.SelfChams.Value and LocalPlayer.Character then
         SelfHighlight.Parent = LocalPlayer.Character
         SelfHighlight.Enabled = true
-        local sColor = Toggles.SelfChamsRainbow.Value and rainbow or Options.SelfChamsColor.Value
+        local sColor = EvaluateColor(Options.SelfMode.Value, Options.SelfColor.Value, Options.SelfColor2.Value, Options.SelfSpeed.Value)
         SelfHighlight.FillColor = sColor
         SelfHighlight.OutlineColor = sColor
     else
@@ -383,7 +296,6 @@ RunService.RenderStepped:Connect(function()
                     HitSoundEffect.SoundId = HitSounds[Options.HitSoundSelector.Value]
                     HitSoundEffect.Volume = Options.HitSoundVolume.Value
                     HitSoundEffect:Play()
-                    
                     if Toggles.HitLog.Value then 
                         local dmg = math.floor(lastHealth[player] - hum.Health)
                         Library:Notify(string.format("Hit %s for %d | Health: %d", player.Name, dmg, math.floor(hum.Health)), 3) 
@@ -394,21 +306,16 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
+    local espCol = EvaluateColor(Options.EspMode.Value, Options.EspColor.Value, Options.EspColor2.Value, Options.EspSpeed.Value)
+    local fillCol = EvaluateColor(Options.FillMode.Value, Options.FillColor.Value, Options.FillColor2.Value, Options.EspSpeed.Value)
+    local nameCol = EvaluateColor(Options.NameMode.Value, Options.NameColor.Value, Options.NameColor2.Value, Options.NameSpeed.Value)
+    local healthCol = EvaluateColor(Options.HealthMode.Value, Options.HealthColor.Value, Options.HealthColor2.Value, Options.HealthSpeed.Value)
+
     for player, drawings in pairs(ESP) do
         local character = player.Character
         local humanoid = character and character:FindFirstChild('Humanoid')
         local rootPart = character and character:FindFirstChild('HumanoidRootPart')
-        local isFriend = LocalPlayer:IsFriendsWith(player.UserId)
-        local role, roleCol = GetRoleInfo(player)
-        
-        local skip = false
-        if Toggles.IgnoreFriends.Value and isFriend then skip = true end
-        if Toggles.IgnoreGuards.Value and role == "Guard" then skip = true end
-        if Toggles.IgnoreInmates.Value and role == "Inmate" then skip = true end
-        if Toggles.IgnoreCriminals.Value and role == "Criminal" then skip = true end
-        if Toggles.IgnoreNeutral.Value and role == "Neutral" then skip = true end
-
-        if not skip and rootPart and humanoid and humanoid.Health > 0 then
+        if rootPart and humanoid and humanoid.Health > 0 then
             local pos, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
             if onScreen then
                 local topPos = Camera:WorldToViewportPoint(rootPart.Position + Vector3.new(0, 3, 0))
@@ -418,28 +325,47 @@ RunService.RenderStepped:Connect(function()
                 drawings.Box.Visible = Toggles.EspToggle.Value
                 drawings.Box.Size = Vector2.new(sizeX, sizeY)
                 drawings.Box.Position = Vector2.new(pos.X - sizeX / 2, pos.Y - sizeY / 2)
-                drawings.Box.Color = Toggles.BoxRainbow.Value and rainbow or Options.EspColor.Value
+                drawings.Box.Color = espCol
                 drawings.Box.Thickness = Options.BoxThickness.Value
+                drawings.BoxFill.Visible = Toggles.BoxFill.Value and Toggles.EspToggle.Value
+                if drawings.BoxFill.Visible then
+                    drawings.BoxFill.Size = drawings.Box.Size
+                    drawings.BoxFill.Position = drawings.Box.Position
+                    drawings.BoxFill.Color = fillCol
+                    drawings.BoxFill.Transparency = 1 - Options.BoxFillTrans.Value
+                end
                 drawings.Name.Visible = Toggles.EspName.Value
                 drawings.Name.Text = player.Name
                 drawings.Name.Position = Vector2.new(pos.X, pos.Y - sizeY / 2 - 15)
-                drawings.Name.Color = Toggles.NameRainbow.Value and rainbow or Options.NameColor.Value
+                drawings.Name.Color = nameCol
                 drawings.Health.Visible = Toggles.EspHealth.Value
                 drawings.Health.Text = 'HP: ' .. math.floor(humanoid.Health)
                 drawings.Health.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + 5)
-                drawings.Health.Color = Toggles.HealthRainbow.Value and rainbow or Options.HealthColor.Value
-                drawings.FriendLabel.Visible = Toggles.FriendEsp.Value and isFriend
-                drawings.FriendLabel.Position = Vector2.new(pos.X, pos.Y - sizeY / 2 - 30)
-                drawings.RoleLabel.Visible = Toggles.EspRoles.Value
-                drawings.RoleLabel.Text = role
-                drawings.RoleLabel.Color = roleCol
-                drawings.RoleLabel.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + 20)
+                drawings.Health.Color = healthCol
+                
+                local currentOffset = 18
+                drawings.Role.Visible = Toggles.EspRole.Value
+                local roleName, roleColor = GetRoleInfo(player)
+                drawings.Role.Text = "[" .. roleName .. "]"
+                drawings.Role.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + currentOffset)
+                drawings.Role.Color = Toggles.EspRoleColor.Value and roleColor or Color3.new(1, 1, 1)
+                
+                if Toggles.EspRole.Value then currentOffset = currentOffset + 13 end
+                
+                local isFriend = LocalPlayer:IsFriendsWith(player.UserId)
+                drawings.Friend.Visible = Toggles.EspFriend.Value and isFriend
+                if drawings.Friend.Visible then
+                    drawings.Friend.Text = "Friend"
+                    drawings.Friend.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + currentOffset)
+                    drawings.Friend.Color = Color3.fromRGB(0, 255, 0)
+                end
+
                 if Toggles.ChamsToggle.Value then
                     drawings.Highlight.Parent = character
                     drawings.Highlight.Enabled = true
-                    local cColor = Toggles.ChamsRainbow.Value and rainbow or Options.ChamsColor.Value
-                    drawings.Highlight.FillColor = cColor
-                    drawings.Highlight.OutlineColor = cColor
+                    local chamsCol = EvaluateColor(Options.ChamsMode.Value, Options.ChamsColor.Value, Options.ChamsColor2.Value, Options.ChamsSpeed.Value)
+                    drawings.Highlight.FillColor = chamsCol
+                    drawings.Highlight.OutlineColor = chamsCol
                 else drawings.Highlight.Enabled = false end
             else for _, d in pairs(drawings) do if typeof(d) ~= "Instance" then d.Visible = false else d.Enabled = false end end end
         else for _, d in pairs(drawings) do if typeof(d) ~= "Instance" then d.Visible = false else d.Enabled = false end end end
@@ -452,9 +378,10 @@ UserInputService.InputBegan:Connect(function(input, processed)
     end
 end)
 
+Library.KeybindFrame.Visible = true
+
 SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({'MenuKeybind'})
 SaveManager:SetFolder('cetyx/main')
 SaveManager:BuildConfigSection(Tabs.Config)
 SaveManager:LoadAutoloadConfig()
