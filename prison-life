@@ -72,8 +72,8 @@ TextESPBox:AddDropdown('HealthMode', { Values = {'Solid', 'Gradient', 'Rainbow'}
 TextESPBox:AddLabel('Colors'):AddColorPicker('HealthColor', { Default = Color3.fromRGB(0, 255, 0) }):AddColorPicker('HealthColor2', { Default = Color3.fromRGB(255, 255, 0) })
 TextESPBox:AddSlider('HealthSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1, Max = 10, Rounding = 1 })
 TextESPBox:AddToggle('EspRole', { Text = 'Role', Default = false })
-TextESPBox:AddDropdown('RoleMode', { Values = {'Solid', 'Gradient', 'Rainbow'}, Default = 1, Text = 'Role Mode' })
-TextESPBox:AddLabel('Colors'):AddColorPicker('RoleColor', { Default = Color3.fromRGB(255, 255, 255) }):AddColorPicker('RoleColor2', { Default = Color3.fromRGB(200, 200, 200) })
+TextESPBox:AddToggle('EspRoleColor', { Text = 'Use Team Color', Default = true })
+TextESPBox:AddToggle('EspFriend', { Text = 'Friend Label', Default = false })
 
 local ChamsESPBox = Tabs.Visual:AddLeftGroupbox('Chams')
 ChamsESPBox:AddToggle('ChamsToggle', { Text = 'Chams', Default = false })
@@ -89,15 +89,21 @@ SelfVisuals:AddSlider('SelfSpeed', { Text = 'Anim Speed', Default = 1, Min = 0.1
 
 local MiscMain = Tabs.Misc:AddLeftGroupbox('Main')
 MiscMain:AddToggle('HitLog', { Text = 'Hit Log', Default = false })
-MiscMain:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
-MiscMain:AddSlider('HitSoundVolume', { Text = 'Sound Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
-local HitSounds = { ['Gamesense'] = 'rbxassetid://4817809188', ['Neverlose'] = 'rbxassetid://97643101798871', ['Fatality'] = 'rbxassetid://115982072912004' }
-MiscMain:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
+
+local SoundAssets = { ['Gamesense'] = 'rbxassetid://4817809188', ['Neverlose'] = 'rbxassetid://97643101798871', ['Fatality'] = 'rbxassetid://115982072912004' }
+
+local SoundsTab = Tabs.Misc:AddRightGroupbox('Sounds')
+SoundsTab:AddToggle('HitSound', { Text = 'Hit Sound', Default = false })
+SoundsTab:AddDropdown('HitSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Hit Sound Type' })
+SoundsTab:AddSlider('HitSoundVolume', { Text = 'Hit Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
+SoundsTab:AddDivider()
+SoundsTab:AddToggle('KillSound', { Text = 'Kill Sound', Default = false })
+SoundsTab:AddDropdown('KillSoundSelector', { Values = { 'Gamesense', 'Neverlose', 'Fatality' }, Default = 1, Multi = false, Text = 'Kill Sound Type' })
+SoundsTab:AddSlider('KillSoundVolume', { Text = 'Kill Volume', Default = 1, Min = 0, Max = 5, Rounding = 1 })
 
 local MiscMovement = Tabs.Misc:AddRightGroupbox('Movement')
-MiscMovement:AddToggle('WallTPEnabled', { Text = 'Wall Teleport', Default = false })
-MiscMovement:AddSlider('WallTPDist', { Text = 'Teleport Distance', Default = 5, Min = 1, Max = 20, Rounding = 1 })
-MiscMovement:AddLabel('Wall TP Bind'):AddKeyPicker('WallTPBind', { Default = 'V', SyncToggleState = false, Mode = 'Toggle', Text = 'Wall Teleport', NoUI = false })
+MiscMovement:AddToggle('WallTPEnabled', { Text = 'Auto Wall Teleport', Default = false }):AddKeyPicker('WallTPBind', { Default = 'None', SyncToggleState = true, Mode = 'Toggle', Text = 'Wall TP Toggle', NoUI = false })
+MiscMovement:AddSlider('WallTPDist', { Text = 'Teleport Distance', Default = 7, Min = 1, Max = 20, Rounding = 1 })
 
 local OptimizationBox = Tabs.Misc:AddRightGroupbox('Optimization')
 OptimizationBox:AddToggle('PotatoMode', { Text = 'Potato Mode', Default = false })
@@ -117,21 +123,13 @@ FovCircle.Filled = false
 FovCircle.Transparency = 1
 
 local HitSoundEffect = Instance.new("Sound", game:GetService("SoundService"))
+local KillSoundEffect = Instance.new("Sound", game:GetService("SoundService"))
 local SelfHighlight = Instance.new("Highlight")
 SelfHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 
-Options.WallTPBind:OnClick(function()
-    if Toggles.WallTPEnabled.Value and LocalPlayer.Character then
-        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            root.CFrame = root.CFrame + root.CFrame.LookVector * Options.WallTPDist.Value
-        end
-    end
-end)
-
 local function GetRoleInfo(player)
     local team = player.Team and player.Team.Name or "Neutral"
-    if team == "Guards" then return "Guard", Color3.fromRGB(0, 0, 255)
+    if team == "Guards" then return "Guard", Color3.fromRGB(0, 150, 255)
     elseif team == "Inmates" then return "Inmate", Color3.fromRGB(255, 165, 0)
     elseif team == "Criminals" then return "Criminal", Color3.fromRGB(255, 0, 0)
     else return "Neutral", Color3.fromRGB(255, 255, 255) end
@@ -207,10 +205,15 @@ local function CreateESP(Player)
     Role.Size = 14
     Role.Center = true
     Role.Outline = true
+    local Friend = Drawing.new('Text')
+    Friend.Visible = false
+    Friend.Size = 14
+    Friend.Center = true
+    Friend.Outline = true
     local Highlight = Instance.new("Highlight")
     Highlight.Enabled = false
     Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    ESP[Player] = {Box = Box, BoxFill = BoxFill, Name = Name, Health = Health, Role = Role, Highlight = Highlight}
+    ESP[Player] = {Box = Box, BoxFill = BoxFill, Name = Name, Health = Health, Role = Role, Friend = Friend, Highlight = Highlight}
 end
 
 for _, player in ipairs(Players:GetPlayers()) do if player ~= LocalPlayer then CreateESP(player) end end
@@ -223,6 +226,7 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 local lastHealth = {}
+local processedKills = {}
 local OriginalMaterials = {}
 Toggles.PotatoMode:OnChanged(function()
     if Toggles.PotatoMode.Value then
@@ -267,6 +271,20 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
+    if Toggles.WallTPEnabled.Value and LocalPlayer.Character then
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            local rayParam = RaycastParams.new()
+            rayParam.FilterType = Enum.RaycastFilterType.Exclude
+            rayParam.FilterDescendantsInstances = {LocalPlayer.Character}
+            local rayResult = workspace:Raycast(root.Position, root.CFrame.LookVector * 2, rayParam)
+            if rayResult then
+                local targetPos = rayResult.Position + (root.CFrame.LookVector * Options.WallTPDist.Value)
+                root.CFrame = CFrame.new(targetPos, targetPos + root.CFrame.LookVector)
+            end
+        end
+    end
+
     if Toggles.SelfChams.Value and LocalPlayer.Character then
         SelfHighlight.Parent = LocalPlayer.Character
         SelfHighlight.Enabled = true
@@ -283,16 +301,39 @@ RunService.RenderStepped:Connect(function()
         local hum = char and char:FindFirstChild("Humanoid")
         if hum then
             if lastHealth[player] and hum.Health < lastHealth[player] then
-                if Toggles.HitSound.Value and Mouse.Target and Mouse.Target:IsDescendantOf(char) then
-                    HitSoundEffect.SoundId = HitSounds[Options.HitSoundSelector.Value]
-                    HitSoundEffect.Volume = Options.HitSoundVolume.Value
-                    HitSoundEffect:Play()
-                    if Toggles.HitLog.Value then 
-                        local dmg = math.floor(lastHealth[player] - hum.Health)
-                        Library:Notify(string.format("Hit %s for %d | Health: %d", player.Name, dmg, math.floor(hum.Health)), 3) 
+                local isMyTarget = false
+                local rayParam = RaycastParams.new()
+                rayParam.FilterType = Enum.RaycastFilterType.Exclude
+                rayParam.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+                local rayResult = workspace:Raycast(Camera.CFrame.Position, Camera.CFrame.LookVector * 5000, rayParam)
+                if rayResult and rayResult.Instance:IsDescendantOf(char) then
+                    isMyTarget = true
+                end
+
+                if isMyTarget then
+                    if Toggles.HitSound.Value and hum.Health > 0 then
+                        HitSoundEffect.SoundId = SoundAssets[Options.HitSoundSelector.Value]
+                        HitSoundEffect.Volume = Options.HitSoundVolume.Value
+                        HitSoundEffect:Play()
+                        if Toggles.HitLog.Value then 
+                            local dmg = math.floor(lastHealth[player] - hum.Health)
+                            Library:Notify(string.format("Hit %s for %d | Health: %d", player.Name, dmg, math.floor(hum.Health)), 3) 
+                        end
+                    end
+                    
+                    if Toggles.KillSound.Value and hum.Health <= 0 and not processedKills[player] then
+                        processedKills[player] = true
+                        KillSoundEffect.SoundId = SoundAssets[Options.KillSoundSelector.Value]
+                        KillSoundEffect.Volume = Options.KillSoundVolume.Value
+                        KillSoundEffect:Play()
                     end
                 end
             end
+            
+            if hum.Health > 0 then
+                processedKills[player] = nil
+            end
+            
             lastHealth[player] = hum.Health
         end
     end
@@ -301,8 +342,6 @@ RunService.RenderStepped:Connect(function()
     local fillCol = EvaluateColor(Options.FillMode.Value, Options.FillColor.Value, Options.FillColor2.Value, Options.EspSpeed.Value)
     local nameCol = EvaluateColor(Options.NameMode.Value, Options.NameColor.Value, Options.NameColor2.Value, Options.NameSpeed.Value)
     local healthCol = EvaluateColor(Options.HealthMode.Value, Options.HealthColor.Value, Options.HealthColor2.Value, Options.HealthSpeed.Value)
-    local roleCol = EvaluateColor(Options.RoleMode.Value, Options.RoleColor.Value, Options.RoleColor2.Value, Options.EspSpeed.Value)
-    local chamsCol = EvaluateColor(Options.ChamsMode.Value, Options.ChamsColor.Value, Options.ChamsColor2.Value, Options.ChamsSpeed.Value)
 
     for player, drawings in pairs(ESP) do
         local character = player.Character
@@ -335,14 +374,28 @@ RunService.RenderStepped:Connect(function()
                 drawings.Health.Text = 'HP: ' .. math.floor(humanoid.Health)
                 drawings.Health.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + 5)
                 drawings.Health.Color = healthCol
+                
+                local currentOffset = 18
                 drawings.Role.Visible = Toggles.EspRole.Value
-                local roleName, _ = GetRoleInfo(player)
+                local roleName, roleColor = GetRoleInfo(player)
                 drawings.Role.Text = "[" .. roleName .. "]"
-                drawings.Role.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + 18)
-                drawings.Role.Color = roleCol
+                drawings.Role.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + currentOffset)
+                drawings.Role.Color = Toggles.EspRoleColor.Value and roleColor or Color3.new(1, 1, 1)
+                
+                if Toggles.EspRole.Value then currentOffset = currentOffset + 13 end
+                
+                local isFriend = LocalPlayer:IsFriendsWith(player.UserId)
+                drawings.Friend.Visible = Toggles.EspFriend.Value and isFriend
+                if drawings.Friend.Visible then
+                    drawings.Friend.Text = "Friend"
+                    drawings.Friend.Position = Vector2.new(pos.X, pos.Y + sizeY / 2 + currentOffset)
+                    drawings.Friend.Color = Color3.fromRGB(0, 255, 0)
+                end
+
                 if Toggles.ChamsToggle.Value then
                     drawings.Highlight.Parent = character
                     drawings.Highlight.Enabled = true
+                    local chamsCol = EvaluateColor(Options.ChamsMode.Value, Options.ChamsColor.Value, Options.ChamsColor2.Value, Options.ChamsSpeed.Value)
                     drawings.Highlight.FillColor = chamsCol
                     drawings.Highlight.OutlineColor = chamsCol
                 else drawings.Highlight.Enabled = false end
@@ -357,15 +410,10 @@ UserInputService.InputBegan:Connect(function(input, processed)
     end
 end)
 
-Window:AddTab('Config')
+Library.KeybindFrame.Visible = true
+
 SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetFolder('cetyx/main')
 SaveManager:BuildConfigSection(Tabs.Config)
-Library:OnUnload(function() print('Unloaded!') end)
-
-local KeybindGroup = Tabs.Config:AddRightGroupbox('Keybinds')
-KeybindGroup:AddLabel('Menu Key'):AddKeyPicker('MenuKeybind', { Default = 'Delete', NoUI = true, SyncToggleState = false })
-KeybindGroup:AddButton('Unload', function() Library:Unload() end)
-
 SaveManager:LoadAutoloadConfig()
